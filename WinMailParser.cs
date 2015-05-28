@@ -13,7 +13,7 @@ namespace WinMailParser
     /// Based on tnef.c from Thomas Boll.
     /// </summary>
     /// <remarks>
-    /// See <a href="http://en.wikipedia.org/wiki/Transport_Neutral_Encapsulation_Format">http://en.wikipedia.org/wiki/Transport_Neutral_Encapsulation_Format</a> 
+    /// See http://en.wikipedia.org/wiki/Transport_Neutral_Encapsulation_Format
     /// for more details
     /// </remarks>
     public class WinMailParser : Disposable
