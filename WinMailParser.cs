@@ -13,18 +13,6 @@ namespace WinMailParser
     /// Based on tnef.c from Thomas Boll.
     /// </summary>
     /// <remarks>
-    /// See http://en.wikipedia.org/wiki/Transport_Neutral_Encapsulation_Format
-    /// for more details
-    /// </remarks>
-    public class WinMailParser : Disposable
-    {
-    /// <summary>
-    /// Used to parse attachments that have the MIME-type Application/MS-TNEF
-    /// TNEF stands for Transport Neutral Encapsulation Format, and is proprietary Microsoft attachment format.
-    ///
-    /// Based on tnef.c from Thomas Boll.
-    /// </summary>
-    /// <remarks>
     /// See <a href="http://en.wikipedia.org/wiki/Transport_Neutral_Encapsulation_Format">http://en.wikipedia.org/wiki/Transport_Neutral_Encapsulation_Format</a> 
     /// for more details
     /// </remarks>
@@ -44,6 +32,7 @@ namespace WinMailParser
         private const int ASUBJECT = (_DWORD | 0x8004);
         private const int AFILENAME = (_string | 0x8010);
         private const int ATTACHDATA = (_BYTE | 0x800f);
+        private const int ATTACHREND = (_BYTE | 0x9002);
 
         private Stream fsTNEF;
         private readonly List<WinMailAttachment> _attachments = new List<WinMailAttachment>();
@@ -369,6 +358,19 @@ namespace WinMailParser
 
             switch ( d )
             {
+                case ATTACHREND:
+
+                    _attachment = new WinMailAttachment();
+                    _attachments.Add(_attachment);
+
+                    length = geti32();
+
+                    StreamReadBytes(buffer, length);
+
+                    geti16(); /* checksum */
+
+                    break;
+
                 case ASUBJECT:
                     length = geti32();
 
@@ -398,7 +400,6 @@ namespace WinMailParser
                     //new attachment found because attachment data goes before attachment name
                     _attachment.FileName = strFileName;
                     _attachment.Subject = subject;
-                    _attachments.Add(_attachment);
 
                     geti16(); /* checksum */
 
@@ -408,7 +409,6 @@ namespace WinMailParser
                     length = geti32();
                     PrintResult("ATTACH-DATA: {0} bytes\n", length);
 
-                    _attachment = new WinMailAttachment();
                     _attachment.Content = new byte[length];
                     _attachment.Length = length;
 
